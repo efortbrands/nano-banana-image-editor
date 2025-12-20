@@ -1,0 +1,20 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm install:*)",
+      "Bash(npx prisma init)",
+      "Bash(npx prisma:*)",
+      "Bash(node test-credentials.js:*)",
+      "Bash(ls:*)",
+      "Bash(cat:*)",
+      "Bash(node setup-database.js:*)",
+      "Bash(npm run dev:*)",
+      "Bash(curl:*)",
+      "Bash(lsof:*)",
+      "Bash(npx shadcn@latest add:*)",
+      "Bash(node:*)",
+      "Bash(python3:*)",
+      "Bash(psql:*)"
+    ]
+  }
+}
