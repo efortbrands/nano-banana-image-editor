@@ -65,8 +65,8 @@ export function AppLayout({ children, userEmail, title, subtitle }: AppLayoutPro
         </div>
       </header>
 
-      <main className="md:ml-0 min-h-screen pt-0">
-        <div className="px-5 pt-5 pb-5">{children}</div>
+      <main className="md:pl-81 min-h-screen pt-10">
+        <div className="pl-16 pr-5 pt-5 pb-5">{children}</div>
       </main>
     </div>
   )

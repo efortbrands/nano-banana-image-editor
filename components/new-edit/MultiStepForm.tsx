@@ -1,14 +1,43 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import dynamic from 'next/dynamic'
 import { AppLayout } from '@/components/layout/AppLayout'
 import { StepIndicator } from './StepIndicator'
-import { Step1Upload } from './Step1Upload'
-import { Step2Prompt } from './Step2Prompt'
-import { Step3Review } from './Step3Review'
 import { useNewEditStore } from '@/lib/stores/newEditStore'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
+
+const StepLoadingSkeleton = () => (
+  <div className="max-w-4xl mx-auto space-y-6 animate-pulse">
+    <div className="h-64 bg-gray-200 rounded-lg" />
+    <div className="h-12 bg-gray-200 rounded w-1/3" />
+  </div>
+)
+
+const Step1Upload = dynamic(
+  () => import('./Step1Upload').then(mod => ({ default: mod.Step1Upload })),
+  {
+    loading: () => <StepLoadingSkeleton />,
+    ssr: false
+  }
+)
+
+const Step2Prompt = dynamic(
+  () => import('./Step2Prompt').then(mod => ({ default: mod.Step2Prompt })),
+  {
+    loading: () => <StepLoadingSkeleton />,
+    ssr: false
+  }
+)
+
+const Step3Review = dynamic(
+  () => import('./Step3Review').then(mod => ({ default: mod.Step3Review })),
+  {
+    loading: () => <StepLoadingSkeleton />,
+    ssr: false
+  }
+)
 
 export function MultiStepForm() {
   const { step } = useNewEditStore()

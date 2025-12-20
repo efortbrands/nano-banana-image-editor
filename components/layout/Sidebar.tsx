@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, memo, useCallback, useMemo } from 'react'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { Home, Plus, Clock, Settings, Menu, X, LogOut, FileText } from 'lucide-react'
@@ -14,31 +14,31 @@ interface SidebarProps {
   userEmail?: string
 }
 
-export function Sidebar({ userEmail }: SidebarProps) {
+export const Sidebar = memo(function Sidebar({ userEmail }: SidebarProps) {
   const [mobileOpen, setMobileOpen] = useState(false)
   const pathname = usePathname()
   const router = useRouter()
 
-  const menuItems = [
+  const menuItems = useMemo(() => [
     { icon: Home, label: 'Dashboard', href: '/dashboard' },
     { icon: Plus, label: 'New Edit', href: '/new' },
     { icon: FileText, label: 'Prompts', href: '/prompts' },
     { icon: Clock, label: 'History', href: '/history' },
-  ]
+  ], [])
 
-  const handleLogout = async () => {
+  const handleLogout = useCallback(async () => {
     const supabase = createClient()
     await supabase.auth.signOut()
     router.push('/login')
     router.refresh()
-  }
+  }, [router])
 
-  const initials = userEmail
+  const initials = useMemo(() => userEmail
     ? userEmail
         .split('@')[0]
         .slice(0, 2)
         .toUpperCase()
-    : 'U'
+    : 'U', [userEmail])
 
   return (
     <>
@@ -125,4 +125,4 @@ export function Sidebar({ userEmail }: SidebarProps) {
       </aside>
     </>
   )
-}
+})

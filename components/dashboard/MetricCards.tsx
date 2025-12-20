@@ -1,5 +1,6 @@
 'use client'
 
+import { memo } from 'react'
 import { Check, Clock, HardDrive, Zap } from 'lucide-react'
 
 interface MetricCardsProps {
@@ -9,7 +10,7 @@ interface MetricCardsProps {
   engineStatus: 'ready' | 'busy' | 'offline'
 }
 
-export function MetricCards({
+export const MetricCards = memo(function MetricCards({
   totalEnhanced,
   timeSaved,
   storageUsed,
@@ -101,4 +102,4 @@ export function MetricCards({
       })}
     </div>
   )
-}
+})

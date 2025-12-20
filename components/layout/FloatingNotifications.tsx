@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, memo } from 'react'
 import { Bell, X } from 'lucide-react'
 import Link from 'next/link'
 import { cn } from '@/lib/utils'
@@ -16,7 +16,7 @@ interface FloatingNotificationsProps {
   userId: string
 }
 
-export function FloatingNotifications({ userId }: FloatingNotificationsProps) {
+export const FloatingNotifications = memo(function FloatingNotifications({ userId }: FloatingNotificationsProps) {
   const [notifications, setNotifications] = useState<Notification[]>([])
   const [unreadCount, setUnreadCount] = useState(0)
   const [isOpen, setIsOpen] = useState(false)
@@ -171,4 +171,4 @@ export function FloatingNotifications({ userId }: FloatingNotificationsProps) {
       )}
     </>
   )
-}
+})

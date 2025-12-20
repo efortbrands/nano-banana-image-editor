@@ -1,9 +1,14 @@
 'use client'
 
 import { useState } from 'react'
+import dynamic from 'next/dynamic'
 import Image from 'next/image'
 import { Download, ZoomIn, Loader2 } from 'lucide-react'
-import { ImageLightbox } from './ImageLightbox'
+
+const ImageLightbox = dynamic(
+  () => import('./ImageLightbox').then(mod => ({ default: mod.ImageLightbox })),
+  { ssr: false }
+)
 
 interface ImageGalleryProps {
   imageUrls: string[]

@@ -2,8 +2,6 @@
 
 import { useState } from 'react'
 import { Download, FileArchive, CheckSquare } from 'lucide-react'
-import JSZip from 'jszip'
-import { saveAs } from 'file-saver'
 import { Button } from '@/components/ui/button'
 
 interface DownloadActionsProps {
@@ -18,6 +16,12 @@ export function DownloadActions({ imageUrls = [], selectedUrls = [] }: DownloadA
     setDownloading(true)
 
     try {
+      // Lazy load JSZip and file-saver only when user clicks ZIP button
+      const [JSZip, { saveAs }] = await Promise.all([
+        import('jszip').then(mod => mod.default),
+        import('file-saver')
+      ])
+
       const zip = new JSZip()
 
       for (let i = 0; i < urls.length; i++) {

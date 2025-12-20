@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, memo, useCallback } from 'react'
 import { Download } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import Image from 'next/image'
@@ -18,10 +18,10 @@ interface RecentGalleryProps {
   recentEdits: RecentEdit[]
 }
 
-export function RecentGallery({ recentEdits }: RecentGalleryProps) {
+export const RecentGallery = memo(function RecentGallery({ recentEdits }: RecentGalleryProps) {
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null)
 
-  const handleDownload = async (imageUrl: string, index: number) => {
+  const handleDownload = useCallback(async (imageUrl: string, index: number) => {
     try {
       const response = await fetch(imageUrl)
       const blob = await response.blob()
@@ -36,9 +36,9 @@ export function RecentGallery({ recentEdits }: RecentGalleryProps) {
     } catch (error) {
       console.error('Error downloading image:', error)
     }
-  }
+  }, [])
 
-  const formatTimeAgo = (dateString: string) => {
+  const formatTimeAgo = useCallback((dateString: string) => {
     const date = new Date(dateString)
     const now = new Date()
     const diffMs = now.getTime() - date.getTime()
@@ -51,7 +51,7 @@ export function RecentGallery({ recentEdits }: RecentGalleryProps) {
     if (diffHours < 24) return `${diffHours}h ago`
     if (diffDays < 7) return `${diffDays}d ago`
     return date.toLocaleDateString()
-  }
+  }, [])
 
   if (recentEdits.length === 0) {
     return (
@@ -91,10 +91,14 @@ export function RecentGallery({ recentEdits }: RecentGalleryProps) {
             >
               {/* Image Container */}
               <div className="relative aspect-square bg-gray-100">
-                <img
+                <Image
                   src={editedImage}
                   alt={`Edit ${index + 1}`}
-                  className="w-full h-full object-cover"
+                  fill
+                  className="object-cover"
+                  sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                  quality={85}
+                  priority={index < 4}
                 />
 
                 {/* Hover Controls */}
@@ -135,4 +139,4 @@ export function RecentGallery({ recentEdits }: RecentGalleryProps) {
       </div>
     </div>
   )
-}
+})

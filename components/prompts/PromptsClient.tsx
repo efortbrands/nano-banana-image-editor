@@ -150,7 +150,7 @@ export function PromptsClient() {
       title="Prompts"
       subtitle="Manage your custom prompts and view presets"
     >
-      <div className="w-full max-w-screen-2xl mx-auto">
+      <div className="w-full max-w-screen-2xl mx-auto mt-10">
         {/* Toggle between custom and preset */}
         <div className="flex items-center justify-between mb-6">
           <div className="flex gap-2">
