@@ -40,3 +40,6 @@ next-env.d.ts
 prisma/migrations
 
 /lib/generated/prisma
+
+# n8n workflows
+/n8n workflows
