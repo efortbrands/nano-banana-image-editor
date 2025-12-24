@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { Prisma } from '@prisma/client'
 
+// Vercel serverless function configuration
+export const dynamic = 'force-dynamic'
+
 // POST /api/webhook/callback - Receive n8n results
 export async function POST(req: NextRequest) {
   try {

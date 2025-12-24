@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 
+// Vercel serverless function configuration
+export const dynamic = 'force-dynamic'
+
 // GET /api/presets - Get all active prompt presets
 export async function GET(req: NextRequest) {
   try {

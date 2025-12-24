@@ -3,6 +3,10 @@ import { createRouteHandlerClient } from '@/lib/supabase/server'
 import { prisma } from '@/lib/prisma'
 import heicConvert from 'heic-convert'
 
+// Vercel serverless function configuration
+export const dynamic = 'force-dynamic'
+export const maxDuration = 60 // Seconds (requires Vercel Pro for >10s, Hobby defaults to 10s)
+
 // Helper function to convert HEIC to JPEG
 async function convertHeicToJpeg(file: File): Promise<{ buffer: Buffer; fileName: string }> {
   const arrayBuffer = await file.arrayBuffer()
