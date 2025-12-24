@@ -3,7 +3,7 @@
 import { useState, useEffect, memo, useCallback, useMemo } from 'react'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
-import { Home, Plus, Clock, Settings, Menu, X, LogOut, FileText } from 'lucide-react'
+import { Home, Plus, Clock, Settings, Menu, X, LogOut, FileText, ChevronLeft, ChevronRight } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
@@ -12,12 +12,20 @@ import { cn } from '@/lib/utils'
 
 interface SidebarProps {
   userEmail?: string
+  collapsed: boolean
+  onCollapsedChange: (collapsed: boolean) => void
 }
 
-export const Sidebar = memo(function Sidebar({ userEmail }: SidebarProps) {
+export const Sidebar = memo(function Sidebar({ userEmail, collapsed, onCollapsedChange }: SidebarProps) {
   const [mobileOpen, setMobileOpen] = useState(false)
   const pathname = usePathname()
   const router = useRouter()
+
+  const toggleCollapsed = useCallback(() => {
+    const newValue = !collapsed
+    localStorage.setItem('sidebarCollapsed', String(newValue))
+    onCollapsedChange(newValue)
+  }, [collapsed, onCollapsedChange])
 
   const menuItems = useMemo(() => [
     { icon: Home, label: 'Dashboard', href: '/dashboard' },
@@ -61,16 +69,27 @@ export const Sidebar = memo(function Sidebar({ userEmail }: SidebarProps) {
       {/* Sidebar */}
       <aside
         className={cn(
-          'fixed left-0 top-0 z-40 h-full w-80 bg-white border-r border-gray-200 flex flex-col',
+          'fixed left-0 top-0 z-40 h-full bg-white border-r border-gray-200 flex flex-col transition-all duration-300',
+          collapsed ? 'w-20' : 'w-80',
           mobileOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'
         )}
       >
         {/* Header */}
-        <div className="p-6">
-          <div>
-            <h1 className="text-xl font-bold text-gray-900">AI Image Editor</h1>
-            <p className="text-sm text-gray-600">Professional editing</p>
-          </div>
+        <div className={cn('p-6 flex items-center justify-between', collapsed && 'px-4')}>
+          {!collapsed && (
+            <div>
+              <h1 className="text-xl font-bold text-gray-900">AI Image Editor</h1>
+              <p className="text-sm text-gray-600">Professional editing</p>
+            </div>
+          )}
+          {/* Collapse button - desktop only */}
+          <button
+            onClick={toggleCollapsed}
+            className="hidden md:flex p-2 rounded-lg hover:bg-gray-100 transition-colors"
+            title={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+          >
+            {collapsed ? <ChevronRight className="h-5 w-5" /> : <ChevronLeft className="h-5 w-5" />}
+          </button>
         </div>
 
         {/* Navigation */}
@@ -88,38 +107,60 @@ export const Sidebar = memo(function Sidebar({ userEmail }: SidebarProps) {
                   'flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200',
                   isActive
                     ? 'bg-gray-100 text-gray-900 border-l-3 border-gray-900'
-                    : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                    : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900',
+                  collapsed && 'justify-center px-2'
                 )}
+                title={collapsed ? item.label : undefined}
               >
                 <Icon className="h-5 w-5 flex-shrink-0" />
-                <span className="font-medium">{item.label}</span>
+                {!collapsed && <span className="font-medium">{item.label}</span>}
               </Link>
             )
           })}
         </nav>
 
-        {/* Activity Log */}
-        <ActivityLog />
+        {/* Activity Log - hide when collapsed */}
+        {!collapsed && <ActivityLog />}
 
         {/* Bottom section */}
-        <div className="p-4 border-t border-gray-200">
+        <div className={cn('p-4 border-t border-gray-200', collapsed && 'px-2')}>
           <div className="space-y-3">
-            <div className="flex items-center gap-3 px-2">
-              <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center text-gray-700 font-medium">
-                {initials}
+            {!collapsed ? (
+              <>
+                <div className="flex items-center gap-3 px-2">
+                  <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center text-gray-700 font-medium">
+                    {initials}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm text-gray-600 truncate">{userEmail}</p>
+                  </div>
+                </div>
+                <Button
+                  variant="ghost"
+                  onClick={handleLogout}
+                  className="w-full justify-start text-gray-600 hover:text-gray-900"
+                >
+                  <LogOut className="h-4 w-4 mr-2" />
+                  Logout
+                </Button>
+              </>
+            ) : (
+              <div className="flex flex-col items-center gap-3">
+                <div
+                  className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center text-gray-700 font-medium cursor-pointer"
+                  title={userEmail}
+                >
+                  {initials}
+                </div>
+                <button
+                  onClick={handleLogout}
+                  className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                  title="Logout"
+                >
+                  <LogOut className="h-4 w-4 text-gray-600" />
+                </button>
               </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-sm text-gray-600 truncate">{userEmail}</p>
-              </div>
-            </div>
-            <Button
-              variant="ghost"
-              onClick={handleLogout}
-              className="w-full justify-start text-gray-600 hover:text-gray-900"
-            >
-              <LogOut className="h-4 w-4 mr-2" />
-              Logout
-            </Button>
+            )}
           </div>
         </div>
       </aside>

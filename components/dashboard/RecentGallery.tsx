@@ -3,7 +3,6 @@
 import { useState, memo, useCallback } from 'react'
 import { Download } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import Image from 'next/image'
 import Link from 'next/link'
 
 interface RecentEdit {
@@ -20,6 +19,7 @@ interface RecentGalleryProps {
 
 export const RecentGallery = memo(function RecentGallery({ recentEdits }: RecentGalleryProps) {
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null)
+  const [imageErrors, setImageErrors] = useState<Set<string>>(new Set())
 
   const handleDownload = useCallback(async (imageUrl: string, index: number) => {
     try {
@@ -91,15 +91,20 @@ export const RecentGallery = memo(function RecentGallery({ recentEdits }: Recent
             >
               {/* Image Container */}
               <div className="relative aspect-square bg-gray-100">
-                <Image
-                  src={editedImage}
-                  alt={`Edit ${index + 1}`}
-                  fill
-                  className="object-cover"
-                  sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
-                  quality={85}
-                  priority={index < 4}
-                />
+                {!imageErrors.has(editedImage) ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={editedImage}
+                    alt={`Edit ${index + 1}`}
+                    crossOrigin="anonymous"
+                    className="w-full h-full object-cover"
+                    onError={() => setImageErrors(prev => new Set(prev).add(editedImage))}
+                  />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center text-gray-400">
+                    <span className="text-4xl">📷</span>
+                  </div>
+                )}
 
                 {/* Hover Controls */}
                 {hoveredIndex === index && (
@@ -123,15 +128,12 @@ export const RecentGallery = memo(function RecentGallery({ recentEdits }: Recent
               </div>
 
               {/* Action Buttons */}
-              <div className="p-3 space-y-2">
-                <Link href={`/job/${edit.id}`}>
-                  <button className="w-full text-xs px-3 py-2 bg-gray-900 text-white rounded hover:bg-gray-800 transition-colors">
+              <div className="p-4">
+                <Link href={`/jobs/${edit.id}`}>
+                  <button className="w-full text-xs px-4 py-2.5 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition-colors font-medium">
                     View Job
                   </button>
                 </Link>
-                <p className="text-xs text-gray-500 line-clamp-2" title={edit.prompt}>
-                  {edit.prompt}
-                </p>
               </div>
             </div>
           )

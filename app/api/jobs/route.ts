@@ -1,6 +1,27 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createRouteHandlerClient } from '@/lib/supabase/server'
 import { prisma } from '@/lib/prisma'
+import heicConvert from 'heic-convert'
+
+// Helper function to convert HEIC to JPEG
+async function convertHeicToJpeg(file: File): Promise<{ buffer: Buffer; fileName: string }> {
+  const arrayBuffer = await file.arrayBuffer()
+  const buffer = Buffer.from(arrayBuffer)
+
+  const outputBuffer = await heicConvert({
+    buffer,
+    format: 'JPEG',
+    quality: 0.9,
+  })
+
+  // Change file extension to .jpg
+  const fileName = file.name.replace(/\.(heic|HEIC)$/i, '.jpg')
+
+  return {
+    buffer: Buffer.from(outputBuffer),
+    fileName,
+  }
+}
 
 // GET /api/jobs - List all jobs for the authenticated user
 export async function GET(req: NextRequest) {
@@ -47,6 +68,9 @@ export async function POST(req: NextRequest) {
     const presetId = formData.get('presetId') as string | null
     const phone = formData.get('phone') as string | null
     const notifyByEmail = formData.get('notifyByEmail') === 'true'
+    const productName = formData.get('productName') as string | null
+    const productCategory = formData.get('productCategory') as string | null
+    const productSku = formData.get('productSku') as string | null
     const images = formData.getAll('images') as File[]
 
     if (!prompt || !promptType || images.length === 0) {
@@ -60,11 +84,25 @@ export async function POST(req: NextRequest) {
     const inputImageUrls: string[] = []
     for (let i = 0; i < images.length; i++) {
       const file = images[i]
-      const fileName = `${user.id}/${Date.now()}-${i}-${file.name}`
+      let uploadData: Buffer | File = file
+      let uploadFileName = file.name
+
+      // Check if file is HEIC and convert to JPEG
+      if (file.name.match(/\.(heic|HEIC)$/i)) {
+        console.log(`🔄 Converting HEIC to JPEG: ${file.name}`)
+        const converted = await convertHeicToJpeg(file)
+        uploadData = converted.buffer
+        uploadFileName = converted.fileName
+        console.log(`✅ Converted to: ${uploadFileName}`)
+      }
+
+      const fileName = `${user.id}/${Date.now()}-${i}-${uploadFileName}`
 
       const { data, error } = await supabase.storage
         .from('temp-images')
-        .upload(fileName, file)
+        .upload(fileName, uploadData, {
+          contentType: uploadFileName.endsWith('.jpg') ? 'image/jpeg' : undefined,
+        })
 
       if (error) {
         console.error('Error uploading image:', error)
@@ -87,6 +125,9 @@ export async function POST(req: NextRequest) {
         presetId,
         phone,
         notifyByEmail,
+        productName,
+        productCategory,
+        productSku,
         inputImages: inputImageUrls,
         status: 'pending',
       },
@@ -103,6 +144,9 @@ export async function POST(req: NextRequest) {
         userEmail: user.email,
         imageUrls: inputImageUrls,
         prompt,
+        productName,
+        productCategory,
+        productSku,
         callbackUrl: `${process.env.NEXT_PUBLIC_APP_URL}/api/webhook/callback`,
       }
 

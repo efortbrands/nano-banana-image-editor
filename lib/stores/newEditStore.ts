@@ -9,6 +9,9 @@ interface NewEditStore {
   presetName: string | null
   phone: string
   notifyByEmail: boolean
+  productName: string
+  productCategory: string
+  productSku: string
 
   // Actions
   setStep: (step: 1 | 2 | 3) => void
@@ -21,6 +24,9 @@ interface NewEditStore {
   setPreset: (id: string, name: string, prompt: string) => void
   setPhone: (phone: string) => void
   setNotifyByEmail: (notify: boolean) => void
+  setProductName: (name: string) => void
+  setProductCategory: (category: string) => void
+  setProductSku: (sku: string) => void
   reset: () => void
 }
 
@@ -33,6 +39,9 @@ const initialState = {
   presetName: null,
   phone: '',
   notifyByEmail: true,
+  productName: '',
+  productCategory: '',
+  productSku: '',
 }
 
 export const useNewEditStore = create<NewEditStore>((set) => ({
@@ -67,6 +76,12 @@ export const useNewEditStore = create<NewEditStore>((set) => ({
   setPhone: (phone) => set({ phone }),
 
   setNotifyByEmail: (notifyByEmail) => set({ notifyByEmail }),
+
+  setProductName: (productName) => set({ productName }),
+
+  setProductCategory: (productCategory) => set({ productCategory }),
+
+  setProductSku: (productSku) => set({ productSku }),
 
   reset: () => set(initialState),
 }))

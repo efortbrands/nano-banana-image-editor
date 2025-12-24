@@ -1,5 +1,4 @@
 import { createClient } from '@/lib/supabase/server'
-import { AppLayout } from '@/components/layout/AppLayout'
 import { redirect } from 'next/navigation'
 
 export default async function ProtectedLayout({
@@ -16,5 +15,5 @@ export default async function ProtectedLayout({
     redirect('/login')
   }
 
-  return <AppLayout userEmail={user.email}>{children}</AppLayout>
+  return <>{children}</>
 }

@@ -143,7 +143,7 @@ export const FloatingNotifications = memo(function FloatingNotifications({ userI
             notifications.map((notification, index) => (
               <Link
                 key={notification.id}
-                href={`/job/${notification.jobId}`}
+                href={`/jobs/${notification.jobId}`}
                 onClick={() => setIsOpen(false)}
                 className={cn(
                   'block px-4 py-3 hover:bg-gray-50 cursor-pointer transition-colors',

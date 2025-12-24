@@ -16,10 +16,12 @@ const JobDetailClient = dynamic(
 )
 
 interface JobDetailPageProps {
-  params: { id: string }
+  params: Promise<{ id: string }> | { id: string }
 }
 
 export default async function JobDetailPage({ params }: JobDetailPageProps) {
+  const resolvedParams = await Promise.resolve(params)
+
   const supabase = createClient()
   const {
     data: { user },
@@ -30,7 +32,7 @@ export default async function JobDetailPage({ params }: JobDetailPageProps) {
   }
 
   const job = await prisma.job.findUnique({
-    where: { id: params.id },
+    where: { id: resolvedParams.id },
   })
 
   if (!job || job.userId !== user.id) {

@@ -19,6 +19,9 @@ export function Step3Review() {
     presetName,
     phone,
     notifyByEmail,
+    productName,
+    productCategory,
+    productSku,
     setPhone,
     setNotifyByEmail,
     setStep,
@@ -50,6 +53,9 @@ export function Step3Review() {
       if (presetId) formData.append('presetId', presetId)
       if (phone) formData.append('phone', phone)
       formData.append('notifyByEmail', String(notifyByEmail))
+      if (productName) formData.append('productName', productName)
+      if (productCategory) formData.append('productCategory', productCategory)
+      if (productSku) formData.append('productSku', productSku)
 
       images.forEach((image) => {
         formData.append('images', image)

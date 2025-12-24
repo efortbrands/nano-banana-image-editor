@@ -111,12 +111,12 @@ export function NotificationBell({ userId }: NotificationBellProps) {
             No notifications yet
           </div>
         ) : (
-          <div className="max-h-96 overflow-y-auto bg-white">
+          <div className="max-h-96 overflow-y-auto bg-white divide-y divide-gray-200">
             {notifications.map((notification) => (
               <DropdownMenuItem key={notification.id} asChild>
                 <Link
                   href={`/jobs/${notification.jobId}`}
-                  className="flex flex-col items-start gap-1 px-4 py-3 hover:bg-gray-50 cursor-pointer bg-white border-b border-gray-100 last:border-b-0"
+                  className="flex flex-col items-start gap-1 px-4 py-4 hover:bg-gray-50 cursor-pointer bg-white transition-colors"
                 >
                   <p className="text-sm font-medium text-gray-900">
                     {notification.title}

@@ -22,7 +22,7 @@ export function JobHeader({ job }: JobHeaderProps) {
   // Extract image URLs from outputData - handle both array and object formats
   const imageUrls = Array.isArray(job.outputData)
     ? job.outputData
-    : (job.outputData?.images || [])
+    : ((job.outputData as any)?.images || [])
 
   return (
     <div className="bg-white border-b border-gray-200 p-6">

@@ -1,18 +1,24 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useMemo } from 'react'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { JobCard } from './JobCard'
 import { EmptyState } from './EmptyState'
 import { Job } from '@/lib/types'
-import { ChevronLeft, ChevronRight } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Search, X } from 'lucide-react'
 
 export function JobList() {
   const [jobs, setJobs] = useState<Job[]>([])
   const [loading, setLoading] = useState(true)
   const [currentPage, setCurrentPage] = useState(1)
   const [jobsPerPage, setJobsPerPage] = useState(10)
+
+  // Filter states
+  const [dateFrom, setDateFrom] = useState('')
+  const [dateTo, setDateTo] = useState('')
+  const [promptTypeFilter, setPromptTypeFilter] = useState<'all' | 'preset' | 'custom'>('all')
+  const [searchTerm, setSearchTerm] = useState('')
 
   useEffect(() => {
     fetch('/api/jobs')
@@ -24,11 +30,47 @@ export function JobList() {
       .catch(() => setLoading(false))
   }, [])
 
-  // Calculate pagination
-  const totalPages = Math.ceil(jobs.length / jobsPerPage)
+  // Apply filters
+  const filteredJobs = useMemo(() => {
+    return jobs.filter((job) => {
+      // Date filter
+      if (dateFrom) {
+        const jobDate = new Date(job.createdAt)
+        const fromDate = new Date(dateFrom)
+        if (jobDate < fromDate) return false
+      }
+      if (dateTo) {
+        const jobDate = new Date(job.createdAt)
+        const toDate = new Date(dateTo)
+        toDate.setHours(23, 59, 59, 999) // Include the entire day
+        if (jobDate > toDate) return false
+      }
+
+      // Prompt type filter
+      if (promptTypeFilter !== 'all' && job.promptType !== promptTypeFilter) {
+        return false
+      }
+
+      // Search filter (search in productName, productSku, and prompt)
+      if (searchTerm) {
+        const search = searchTerm.toLowerCase()
+        const matchesProductName = job.productName?.toLowerCase().includes(search)
+        const matchesSku = job.productSku?.toLowerCase().includes(search)
+        const matchesPrompt = job.prompt?.toLowerCase().includes(search)
+        if (!matchesProductName && !matchesSku && !matchesPrompt) {
+          return false
+        }
+      }
+
+      return true
+    })
+  }, [jobs, dateFrom, dateTo, promptTypeFilter, searchTerm])
+
+  // Calculate pagination based on filtered jobs
+  const totalPages = Math.ceil(filteredJobs.length / jobsPerPage)
   const indexOfLastJob = currentPage * jobsPerPage
   const indexOfFirstJob = indexOfLastJob - jobsPerPage
-  const currentJobs = jobs.slice(indexOfFirstJob, indexOfLastJob)
+  const currentJobs = filteredJobs.slice(indexOfFirstJob, indexOfLastJob)
 
   const goToPage = (page: number) => {
     setCurrentPage(page)
@@ -39,6 +81,16 @@ export function JobList() {
     setJobsPerPage(value)
     setCurrentPage(1) // Reset to first page when changing items per page
   }
+
+  const clearFilters = () => {
+    setDateFrom('')
+    setDateTo('')
+    setPromptTypeFilter('all')
+    setSearchTerm('')
+    setCurrentPage(1)
+  }
+
+  const hasActiveFilters = dateFrom || dateTo || promptTypeFilter !== 'all' || searchTerm
 
   if (loading) {
     return (
@@ -65,6 +117,105 @@ export function JobList() {
 
   return (
     <div>
+      {/* Filter Section */}
+      <div className="bg-white rounded-lg border border-gray-200 p-6 mb-6">
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-lg font-semibold text-gray-900">Filters</h3>
+          {hasActiveFilters && (
+            <button
+              onClick={clearFilters}
+              className="flex items-center gap-1 text-sm text-gray-600 hover:text-gray-900 transition-colors"
+            >
+              <X className="h-4 w-4" />
+              Clear filters
+            </button>
+          )}
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          {/* Date From */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              From Date
+            </label>
+            <input
+              type="date"
+              value={dateFrom}
+              onChange={(e) => {
+                setDateFrom(e.target.value)
+                setCurrentPage(1)
+              }}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-gray-900"
+            />
+          </div>
+
+          {/* Date To */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              To Date
+            </label>
+            <input
+              type="date"
+              value={dateTo}
+              onChange={(e) => {
+                setDateTo(e.target.value)
+                setCurrentPage(1)
+              }}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-gray-900"
+            />
+          </div>
+
+          {/* Prompt Type */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Prompt Type
+            </label>
+            <select
+              value={promptTypeFilter}
+              onChange={(e) => {
+                setPromptTypeFilter(e.target.value as 'all' | 'preset' | 'custom')
+                setCurrentPage(1)
+              }}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-gray-900"
+            >
+              <option value="all">All Types</option>
+              <option value="preset">Preset</option>
+              <option value="custom">Custom</option>
+            </select>
+          </div>
+
+          {/* Search */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Search
+            </label>
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+              <input
+                type="text"
+                value={searchTerm}
+                onChange={(e) => {
+                  setSearchTerm(e.target.value)
+                  setCurrentPage(1)
+                }}
+                placeholder="Product name, SKU, prompt..."
+                className="w-full pl-9 pr-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-gray-900"
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Results count */}
+        {hasActiveFilters && (
+          <div className="mt-4 pt-4 border-t border-gray-200">
+            <p className="text-sm text-gray-600">
+              Showing <span className="font-semibold text-gray-900">{filteredJobs.length}</span> of{' '}
+              <span className="font-semibold text-gray-900">{jobs.length}</span> jobs
+            </p>
+          </div>
+        )}
+      </div>
+
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-3">
           <span className="text-sm text-gray-600">Jobs per page:</span>
@@ -86,6 +237,16 @@ export function JobList() {
 
       {jobs.length === 0 ? (
         <EmptyState />
+      ) : filteredJobs.length === 0 ? (
+        <div className="text-center py-12 bg-white rounded-lg border border-gray-200">
+          <p className="text-gray-600 mb-2">No jobs match your filters</p>
+          <button
+            onClick={clearFilters}
+            className="text-sm text-gray-900 hover:underline"
+          >
+            Clear filters to see all jobs
+          </button>
+        </div>
       ) : (
         <>
           <div className="space-y-6">
@@ -98,8 +259,8 @@ export function JobList() {
           {totalPages > 1 && (
             <div className="mt-8 flex items-center justify-between">
               <div className="text-sm text-gray-600">
-                Showing {indexOfFirstJob + 1} to {Math.min(indexOfLastJob, jobs.length)} of{' '}
-                {jobs.length} jobs
+                Showing {indexOfFirstJob + 1} to {Math.min(indexOfLastJob, filteredJobs.length)} of{' '}
+                {filteredJobs.length} jobs
               </div>
 
               <div className="flex items-center gap-2">

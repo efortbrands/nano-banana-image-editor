@@ -10,7 +10,7 @@ interface StepIndicatorProps {
 const steps = [
   { number: 1, label: 'Upload' },
   { number: 2, label: 'Prompt' },
-  { number: 3, label: 'Review' },
+  { number: 3, label: 'Review & Submit' },
 ]
 
 export function StepIndicator({ currentStep }: StepIndicatorProps) {

@@ -2,7 +2,6 @@
 
 import { useEffect } from 'react'
 import { X, ChevronLeft, ChevronRight, Download } from 'lucide-react'
-import Image from 'next/image'
 import { Button } from '@/components/ui/button'
 
 interface ImageLightboxProps {
@@ -64,14 +63,15 @@ export function ImageLightbox({
 
       {/* Image */}
       <div
-        className="relative w-[90vw] h-[90vh]"
+        className="relative w-[90vw] h-[90vh] flex items-center justify-center"
         onClick={(e) => e.stopPropagation()}
       >
-        <Image
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
           src={images[currentIndex]}
           alt={`Image ${currentIndex + 1}`}
-          fill
-          className="object-contain rounded-lg"
+          crossOrigin="anonymous"
+          className="max-w-full max-h-full object-contain rounded-lg"
         />
       </div>
 

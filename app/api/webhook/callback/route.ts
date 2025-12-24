@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { Prisma } from '@prisma/client'
 
 // POST /api/webhook/callback - Receive n8n results
 export async function POST(req: NextRequest) {
@@ -46,7 +47,7 @@ export async function POST(req: NextRequest) {
     // Prepare output data
     const outputData = outputImages
       ? { images: outputImages, timestamp: new Date().toISOString() }
-      : null
+      : Prisma.JsonNull
 
     // Update job in database
     const updatedJob = await prisma.job.update({

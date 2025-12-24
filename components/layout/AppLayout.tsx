@@ -1,9 +1,18 @@
 'use client'
 
-import { useEffect, useState } from 'react'
-import { Sidebar } from './Sidebar'
-import { FloatingNotifications } from './FloatingNotifications'
+import { useEffect, useState, useMemo, useCallback } from 'react'
+import dynamic from 'next/dynamic'
 import { createClient } from '@/lib/supabase/client'
+
+const Sidebar = dynamic(
+  () => import('./Sidebar').then(mod => ({ default: mod.Sidebar })),
+  { ssr: true }
+)
+
+const FloatingNotifications = dynamic(
+  () => import('./FloatingNotifications').then(mod => ({ default: mod.FloatingNotifications })),
+  { ssr: false }
+)
 
 interface AppLayoutProps {
   children: React.ReactNode
@@ -14,19 +23,31 @@ interface AppLayoutProps {
 
 export function AppLayout({ children, userEmail, title, subtitle }: AppLayoutProps) {
   const [userId, setUserId] = useState<string | null>(null)
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
+
+  // Memoize Supabase client to avoid recreating on every render
+  const supabase = useMemo(() => createClient(), [])
+
+  // Load sidebar collapsed state from localStorage
+  useEffect(() => {
+    const saved = localStorage.getItem('sidebarCollapsed')
+    if (saved !== null) {
+      setSidebarCollapsed(saved === 'true')
+    }
+  }, [])
+
+  const fetchUser = useCallback(async () => {
+    const {
+      data: { user },
+    } = await supabase.auth.getUser()
+    if (user) {
+      setUserId(user.id)
+    }
+  }, [supabase])
 
   useEffect(() => {
-    const fetchUser = async () => {
-      const supabase = createClient()
-      const {
-        data: { user },
-      } = await supabase.auth.getUser()
-      if (user) {
-        setUserId(user.id)
-      }
-    }
     fetchUser()
-  }, [])
+  }, [fetchUser])
 
   // Check for stale jobs every 15 minutes
   useEffect(() => {
@@ -48,10 +69,18 @@ export function AppLayout({ children, userEmail, title, subtitle }: AppLayoutPro
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Sidebar userEmail={userEmail} />
+      <Sidebar
+        userEmail={userEmail}
+        collapsed={sidebarCollapsed}
+        onCollapsedChange={setSidebarCollapsed}
+      />
 
       {/* Top header bar */}
-      <header className="fixed top-0 right-0 left-0 md:left-80 h-24 bg-white border-b border-gray-200 z-40">
+      <header
+        className={`fixed top-0 right-0 h-24 bg-white border-b border-gray-200 z-40 transition-all duration-300 ${
+          sidebarCollapsed ? 'left-0 md:left-20' : 'left-0 md:left-80'
+        }`}
+      >
         <div className="h-full px-8 flex items-center justify-between">
           {title && (
             <div className="py-2">
@@ -65,8 +94,12 @@ export function AppLayout({ children, userEmail, title, subtitle }: AppLayoutPro
         </div>
       </header>
 
-      <main className="md:pl-81 min-h-screen pt-10">
-        <div className="pl-16 pr-5 pt-5 pb-5">{children}</div>
+      <main
+        className={`min-h-screen pt-[106px] transition-all duration-300 ${
+          sidebarCollapsed ? 'md:pl-20' : 'md:pl-96'
+        }`}
+      >
+        <div className="pl-8 pr-8 pt-5 pb-5">{children}</div>
       </main>
     </div>
   )

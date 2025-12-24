@@ -9,7 +9,18 @@ import { useNewEditStore } from '@/lib/stores/newEditStore'
 import { cn } from '@/lib/utils'
 
 export function Step1Upload() {
-  const { images, setImages, removeImage, nextStep } = useNewEditStore()
+  const {
+    images,
+    setImages,
+    removeImage,
+    nextStep,
+    productName,
+    productCategory,
+    productSku,
+    setProductName,
+    setProductCategory,
+    setProductSku,
+  } = useNewEditStore()
   const cameraInputRef = useRef<HTMLInputElement>(null)
 
   const onDrop = useCallback(
@@ -57,6 +68,49 @@ export function Step1Upload() {
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
+      {/* Product Information */}
+      <div className="bg-white rounded-lg border border-gray-200 p-6">
+        <h3 className="text-lg font-semibold text-gray-900 mb-4">Product Information</h3>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Product Name
+            </label>
+            <input
+              type="text"
+              value={productName}
+              onChange={(e) => setProductName(e.target.value)}
+              placeholder="e.g., Classic T-Shirt"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Category
+            </label>
+            <input
+              type="text"
+              value={productCategory}
+              onChange={(e) => setProductCategory(e.target.value)}
+              placeholder="e.g., Apparel"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              SKU
+            </label>
+            <input
+              type="text"
+              value={productSku}
+              onChange={(e) => setProductSku(e.target.value)}
+              placeholder="e.g., TSH-001-BLK"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900"
+            />
+          </div>
+        </div>
+      </div>
+
       {/* Dropzone */}
       <div
         {...getRootProps()}

@@ -1,5 +1,10 @@
+const withBundleAnalyzer = require('@next/bundle-analyzer')({
+  enabled: process.env.ANALYZE === 'true',
+})
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  output: 'standalone', // Required for Docker deployment
   images: {
     remotePatterns: [
       {
@@ -9,7 +14,12 @@ const nextConfig = {
     ],
     formats: ['image/avif', 'image/webp'],
     deviceSizes: [640, 750, 828, 1080, 1200, 1920],
-    imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
+    imageSizes: [16, 32, 48, 64, 80, 96, 128, 256, 384],
+    minimumCacheTTL: 86400, // Cache images for 24 hours
+    dangerouslyAllowSVG: false,
+    contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
+    loader: undefined, // Use default Next.js image optimization
+    domains: [], // Using remotePatterns instead
   },
   compiler: {
     removeConsole: process.env.NODE_ENV === 'production' ? {
@@ -21,4 +31,4 @@ const nextConfig = {
   poweredByHeader: false,
 };
 
-module.exports = nextConfig;
+module.exports = withBundleAnalyzer(nextConfig);

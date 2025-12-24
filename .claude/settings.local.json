@@ -19,7 +19,22 @@
       "Bash(du:*)",
       "Bash(wc:*)",
       "Bash(grep:*)",
-      "Bash(npm uninstall:*)"
+      "Bash(npm uninstall:*)",
+      "Bash(xargs kill:*)",
+      "Bash(npm run build:*)",
+      "Bash(npm audit:*)",
+      "Bash(if grep -q \".env.production\" .gitignore)",
+      "Bash(then )",
+      "Bash(else )",
+      "Bash(fi)",
+      "Bash( if git ls-files)",
+      "Bash(then  echo \" ❌ WARNING: Found real credentials in tracked files\")",
+      "Bash( else  echo \" ✅ No credentials found in tracked files\")",
+      "Bash(if grep -q 'output.*standalone' next.config.js)",
+      "Bash(if grep -q '\"\"engines\"\"' package.json)",
+      "Bash(if [ -f \"prisma/schema.prisma\" ])",
+      "Bash(if [ -f \"types/heic-convert.d.ts\" ])",
+      "Bash(if grep -q \"your-\" .env.example)"
     ]
   }
 }

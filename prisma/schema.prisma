@@ -20,6 +20,11 @@ model Job {
   promptType   String    // "preset" or "custom"
   presetId     String?
 
+  // Product Information
+  productName     String?
+  productCategory String?
+  productSku      String?
+
   // Images
   inputImages  String[]
   outputData   Json?     // [{image: base64, driveLink: url, downloadUrl: url}]

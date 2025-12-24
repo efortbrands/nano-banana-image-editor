@@ -2,7 +2,6 @@
 
 import { useState } from 'react'
 import dynamic from 'next/dynamic'
-import Image from 'next/image'
 import { Download, ZoomIn, Loader2 } from 'lucide-react'
 
 const ImageLightbox = dynamic(
@@ -20,6 +19,7 @@ export function ImageGallery({ imageUrls, totalImages, onSelectionChange }: Imag
   const [lightboxOpen, setLightboxOpen] = useState(false)
   const [lightboxIndex, setLightboxIndex] = useState(0)
   const [selectedImages, setSelectedImages] = useState<Set<string>>(new Set())
+  const [imageErrors, setImageErrors] = useState<Set<string>>(new Set())
 
   const openLightbox = (index: number) => {
     setLightboxIndex(index)
@@ -83,15 +83,23 @@ export function ImageGallery({ imageUrls, totalImages, onSelectionChange }: Imag
             </div>
 
             <div
-              className="w-full h-full cursor-pointer"
+              className="w-full h-full cursor-pointer relative"
               onClick={() => openLightbox(index)}
             >
-              <Image
-                src={url}
-                alt={`Edited image ${index + 1}`}
-                fill
-                className="object-cover transition-transform duration-200 group-hover:scale-105"
-              />
+              {!imageErrors.has(url) ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={url}
+                  alt={`Edited image ${index + 1}`}
+                  crossOrigin="anonymous"
+                  className="w-full h-full object-cover transition-transform duration-200 group-hover:scale-105"
+                  onError={() => setImageErrors(prev => new Set(prev).add(url))}
+                />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center bg-gray-100 text-gray-400">
+                  <span className="text-4xl">📷</span>
+                </div>
+              )}
             </div>
 
             {/* Overlay on hover */}

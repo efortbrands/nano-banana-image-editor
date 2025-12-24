@@ -56,6 +56,7 @@ export function Step2Prompt() {
       setPrompt(reusedPrompt)
       localStorage.removeItem('reusedPrompt')
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   const handlePresetClick = (preset: PromptPreset) => {

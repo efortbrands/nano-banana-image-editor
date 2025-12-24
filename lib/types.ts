@@ -5,6 +5,9 @@ export interface Job {
   prompt: string
   promptType: 'preset' | 'custom'
   presetId: string | null
+  productName: string | null
+  productCategory: string | null
+  productSku: string | null
   inputImages: string[]
   outputData: OutputResult[] | null
   phone: string | null

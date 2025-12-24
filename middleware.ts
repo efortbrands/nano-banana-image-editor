@@ -45,6 +45,10 @@ export async function middleware(req: NextRequest) {
     return NextResponse.redirect(new URL('/login', req.url))
   }
 
+  if (!session && req.nextUrl.pathname.startsWith('/history')) {
+    return NextResponse.redirect(new URL('/login', req.url))
+  }
+
   // If session exists and trying to access auth pages, redirect to dashboard
   if (session && req.nextUrl.pathname.startsWith('/login')) {
     return NextResponse.redirect(new URL('/dashboard', req.url))
@@ -58,5 +62,5 @@ export async function middleware(req: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/dashboard/:path*', '/new/:path*', '/jobs/:path*', '/login', '/signup'],
+  matcher: ['/dashboard/:path*', '/new/:path*', '/jobs/:path*', '/history/:path*', '/login', '/signup'],
 }
