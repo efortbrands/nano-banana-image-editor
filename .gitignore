@@ -43,3 +43,6 @@ prisma/migrations
 
 # n8n workflows
 /n8n workflows
+
+# Claude Code settings
+.claude/
